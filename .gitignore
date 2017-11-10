@@ -14,7 +14,6 @@
 x64/
 build/
 bld/
-[Bb]in/
 [Oo]bj/
 
 # CMake
@@ -200,6 +199,3 @@ vulkanCapsViewer/vulkanreport.json
 !data/models/*.obj
 !data/models/lowpoly/*.obj
 !data/models/voyager/*.obj
-
-# DLLs in bin
-!bin/*.dll

@@ -314,9 +314,9 @@ private:
 				diffuseMapFile = fileName;
 				std::replace(fileName.begin(), fileName.end(), '\\', '/');
 				if (!resources.textures->present(fileName)) {
-					materials[i].diffuse = resources.textures->addTexture2D(fileName, assetPath + fileName, VK_FORMAT_BC2_UNORM_BLOCK);
+                    materials[i].diffuse = resources.textures->addTexture2D(fileName, assetPath + fileName, VK_FORMAT_BC2_UNORM_BLOCK);
 				} else {
-					materials[i].diffuse = resources.textures->get(fileName);
+                    materials[i].diffuse = resources.textures->get(fileName);
 				}
 			}
 			else
@@ -324,33 +324,16 @@ private:
 				std::cout << "  Material has no diffuse, using dummy texture!" << std::endl;
 				materials[i].diffuse = resources.textures->get("dummy.diffuse");
 			}
-			// Specular
-			if (aScene->mMaterials[i]->GetTextureCount(aiTextureType_SPECULAR) > 0)
-			{
-				aScene->mMaterials[i]->GetTexture(aiTextureType_SPECULAR, 0, &texturefile);
-				std::cout << "  Specular: \"" << texturefile.C_Str() << "\"" << std::endl;
-				std::string fileName = std::string(texturefile.C_Str());
-				std::replace(fileName.begin(), fileName.end(), '\\', '/');
-				if (!resources.textures->present(fileName)) {
-					materials[i].specular = resources.textures->addTexture2D(fileName, assetPath + fileName, VK_FORMAT_BC2_UNORM_BLOCK);
-				}
-				else {
-					materials[i].specular = resources.textures->get(fileName);
-				}
-			}
-			else
-			{
-				std::cout << "  Material has no specular, using dummy texture!" << std::endl;
-				materials[i].specular = resources.textures->get("dummy.specular");
-			}
+
+			materials[i].specular = resources.textures->get("dummy.specular");
 
 			// Bump (map_bump is mapped to height by assimp)
-			if (aScene->mMaterials[i]->GetTextureCount(aiTextureType_NORMALS) > 0)
+			if (aScene->mMaterials[i]->GetTextureCount(aiTextureType_HEIGHT) > 0)
 			{
-				aScene->mMaterials[i]->GetTexture(aiTextureType_NORMALS, 0, &texturefile);
+				aScene->mMaterials[i]->GetTexture(aiTextureType_HEIGHT, 0, &texturefile);
 				std::cout << "  Bump: \"" << texturefile.C_Str() << "\"" << std::endl;
-				std::string fileName = std::string(texturefile.C_Str());
-				std::replace(fileName.begin(), fileName.end(), '\\', '/');
+				std::string fileName = std::string(texturefile.C_Str());		
+                std::replace(fileName.begin(), fileName.end(), '\\', '/');
 				materials[i].hasBump = true;
 				if (!resources.textures->present(fileName)) {
 					materials[i].bump = resources.textures->addTexture2D(fileName, assetPath + fileName, VK_FORMAT_BC2_UNORM_BLOCK);
@@ -364,6 +347,17 @@ private:
 				std::cout << "  Material has no bump, using dummy texture!" << std::endl;
 				materials[i].bump = resources.textures->get("dummy.bump");
 			}
+
+			// Reserved channels
+			if (aScene->mMaterials[i]->GetTextureCount(aiTextureType_AMBIENT) > 0)
+            {
+                std::cout << "  Material has roughness!" << std::endl;
+            }
+
+            if (aScene->mMaterials[i]->GetTextureCount(aiTextureType_SPECULAR) > 0)
+            {
+                std::cout << "  Material has metaliness!" << std::endl;
+            }
 
 			// Mask
 			if (aScene->mMaterials[i]->GetTextureCount(aiTextureType_OPACITY) > 0)
@@ -792,7 +786,7 @@ public:
 	{
 		Assimp::Importer Importer;
 
-		int flags = aiProcess_FlipWindingOrder | aiProcess_Triangulate | aiProcess_PreTransformVertices | aiProcess_CalcTangentSpace | aiProcess_GenSmoothNormals;
+        int flags = aiProcess_FlipWindingOrder | aiProcess_Triangulate | aiProcess_PreTransformVertices | aiProcess_CalcTangentSpace | aiProcess_GenSmoothNormals;
 
 #if defined(__ANDROID__)
 		AAsset* asset = AAssetManager_open(assetManager, filename.c_str(), AASSET_MODE_STREAMING);
@@ -829,7 +823,7 @@ public:
 
 	bool debugDisplay = false;
 	bool attachLight = false;
-	bool enableSSAO = true;
+	bool enableSSAO = false;
 
 	// Vendor specific
 	bool enableNVDedicatedAllocation = false;
@@ -2284,45 +2278,8 @@ public:
 	// Initial light setup for the scene
 	void setupLights()
 	{	
-		// 5 fixed lights
-		std::array<glm::vec3, 5> lightColors;
-		lightColors[0] = glm::vec3(1.0f, 0.0f, 0.0f);
-		lightColors[1] = glm::vec3(1.0f, 0.7f, 0.7f);
-		lightColors[2] = glm::vec3(1.0f, 0.0f, 0.0f);
-		lightColors[3] = glm::vec3(0.0f, 0.0f, 1.0f);
-		lightColors[4] = glm::vec3(1.0f, 0.0f, 0.0f);
-
-		for (int32_t i = 0; i < lightColors.size(); i++)
-		{
-			setupLight(&uboFragmentLights.lights[i], glm::vec3((float)(i - 2.5f) * 50.0f, -10.0f, 0.0f), lightColors[i], 120.0f);
-		}
-
 		// Dynamic light moving over the floor
-		setupLight(&uboFragmentLights.lights[0], { -sin(glm::radians(360.0f * timer)) * 120.0f, -2.5f, cos(glm::radians(360.0f * timer * 8.0f)) * 10.0f }, glm::vec3(1.0f), 100.0f);
-
-		// Fire bowls
-		setupLight(&uboFragmentLights.lights[5], { -48.75f, -16.0f, -17.8f }, { 1.0f, 0.6f, 0.0f }, 45.0f);
-		setupLight(&uboFragmentLights.lights[6], { -48.75f, -16.0f,  18.4f }, { 1.0f, 0.6f, 0.0f }, 45.0f);
-		setupLight(&uboFragmentLights.lights[7], { 62.0f, -16.0f, -17.8f }, { 1.0f, 0.6f, 0.0f }, 45.0f);
-		setupLight(&uboFragmentLights.lights[8], { 62.0f, -16.0f,  18.4f }, { 1.0f, 0.6f, 0.0f }, 45.0f);
-
-		setupLight(&uboFragmentLights.lights[9], { 120.0f, -20.0f, -43.75f }, { 1.0f, 0.8f, 0.3f }, 75.0f);
-		setupLight(&uboFragmentLights.lights[10], { 120.0f, -20.0f, 41.75f }, { 1.0f, 0.8f, 0.3f }, 75.0f);
-		setupLight(&uboFragmentLights.lights[11], { -110.0f, -20.0f, -43.75f }, { 1.0f, 0.8f, 0.3f }, 75.0f);
-		setupLight(&uboFragmentLights.lights[12], { -110.0f, -20.0f, 41.75f }, { 1.0f, 0.8f, 0.3f }, 75.0f);
-
-		// Lion eyes
-		setupLight(&uboFragmentLights.lights[13], { -122.0f, -18.0f, -3.2f }, { 1.0f, 0.3f, 0.3f }, 25.0f);
-		setupLight(&uboFragmentLights.lights[14], { -122.0f, -18.0f,  3.2f }, { 0.3f, 1.0f, 0.3f }, 25.0f);
-
-		setupLight(&uboFragmentLights.lights[15], { 135.0f, -18.0f, -3.2f }, { 0.3f, 0.3f, 1.0f }, 25.0f);
-		setupLight(&uboFragmentLights.lights[16], { 135.0f, -18.0f,  3.2f }, { 1.0f, 1.0f, 0.3f }, 25.0f);
-
-		// Setup particle systems for fire bowls
-		for (uint32_t i = 5; i < 9; i++)
-		{
-			resources.particleSystems->add(512, glm::vec3(uboFragmentLights.lights[i].position) + glm::vec3(0.0f, 2.5f, 0.0f), glm::vec3(-2.0f, 0.25f, -2.0f), glm::vec3(2.0f, 2.5f, 2.0f));
-		}
+		setupLight(&uboFragmentLights.lights[0], { 0.f, -50.0f, 0.f }, glm::vec3(1.0f), 1600.0f);
 	}
 
 	// Update fragment shader light positions for moving light sources
@@ -2336,19 +2293,10 @@ public:
 		}
 		else
 		{
-			// Move across the floow
+			// Move across the floor
 			uboFragmentLights.lights[0].position.x = -sin(glm::radians(360.0f * timer)) * 120.0f;
 			uboFragmentLights.lights[0].position.z = cos(glm::radians(360.0f * timer * 8.0f)) * 10.0f;
 		}
-
-		// Fire bowls
-		/*
-		uboFragmentLights.lights[5].position.x += (2.5f * sin(glm::radians(360.0f * timer)));
-		uboFragmentLights.lights[5].position.z += (2.5f * cos(glm::radians(360.0f * timer)));
-
-		uboFragmentLights.lights[6].position.x += (2.5f * cos(glm::radians(360.0f * timer)));
-		uboFragmentLights.lights[6].position.z += (2.5f * sin(glm::radians(360.0f * timer)));
-		*/
 
 		uboFragmentLights.viewPos = glm::vec4(camera.position, 0.0f) * glm::vec4(-1.0f);
 		//uboFragmentLights.inv = glm::inverse(camera.matrices.view);
@@ -2371,7 +2319,7 @@ public:
 #endif
 		scene->assetPath = getAssetPath();
 
-		scene->load(getAssetPath() + "sponza.dae", copyCmd);
+        scene->load(getAssetPath() + "sponza_pbr.obj", copyCmd);
 		vkFreeCommandBuffers(device, cmdPool, 1, &copyCmd);
 	}
 
