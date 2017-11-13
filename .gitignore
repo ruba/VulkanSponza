@@ -196,6 +196,10 @@ FakesAssemblies/
 vulkanCapsViewer/vulkanreport.json
 
 # Don't ignore 3d models in obj format
+!data/*.obj
 !data/models/*.obj
 !data/models/lowpoly/*.obj
 !data/models/voyager/*.obj
+bin/intermediate/vulkansponza/vulkansponza.tlog/link.write.1.tlog
+bin/intermediate/vulkansponza/vulkansponza.tlog/CL.command.1.tlog
+*.tlog
