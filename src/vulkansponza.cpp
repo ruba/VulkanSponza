@@ -222,11 +222,13 @@ struct SceneMaterial
 {
 	std::string name;
 	vkTools::VulkanTexture diffuse;
-	vkTools::VulkanTexture specular;
+	vkTools::VulkanTexture roughness;
+	vkTools::VulkanTexture metallic;
 	vkTools::VulkanTexture bump;
 	bool hasAlpha = false;
 	bool hasBump = false;
-	bool hasSpecular = false;
+	bool hasRoughness = false;
+	bool hasMetaliness = false;
 	VkPipeline pipeline;
 };
 
@@ -288,6 +290,7 @@ private:
 		resources.textures->addTexture2D("dummy.diffuse", assetPath + "sponza/dummy.dds", VK_FORMAT_BC2_UNORM_BLOCK);
 		resources.textures->addTexture2D("dummy.specular", assetPath + "sponza/dummy_specular.dds", VK_FORMAT_BC2_UNORM_BLOCK);
 		resources.textures->addTexture2D("dummy.bump", assetPath + "sponza/dummy_ddn.dds", VK_FORMAT_BC2_UNORM_BLOCK);
+		resources.textures->addTexture2D("dialectric.metallic", assetPath + "SponzaPBR/textures_pbr/Dielectric_metallic_TGA_BC2_1.DDS", VK_FORMAT_BC2_UNORM_BLOCK);
 
 		materials.resize(aScene->mNumMaterials);
 		
@@ -325,7 +328,8 @@ private:
 				materials[i].diffuse = resources.textures->get("dummy.diffuse");
 			}
 
-			materials[i].specular = resources.textures->get("dummy.specular");
+			materials[i].roughness = resources.textures->get("dummy.specular");
+			materials[i].metallic = resources.textures->get("dialectric.metallic");
 
 			// Bump (map_bump is mapped to height by assimp)
 			if (aScene->mMaterials[i]->GetTextureCount(aiTextureType_HEIGHT) > 0)
@@ -351,12 +355,34 @@ private:
 			// Reserved channels
 			if (aScene->mMaterials[i]->GetTextureCount(aiTextureType_AMBIENT) > 0)
             {
-                std::cout << "  Material has roughness!" << std::endl;
+				aScene->mMaterials[i]->GetTexture(aiTextureType_AMBIENT, 0, &texturefile);
+				std::cout << "  Roughness: \"" << texturefile.C_Str() << "\"" << std::endl;
+				std::string fileName = std::string(texturefile.C_Str());
+				std::replace(fileName.begin(), fileName.end(), '\\', '/');
+				materials[i].hasRoughness = true;
+
+				if (!resources.textures->present(fileName)) {
+					materials[i].roughness = resources.textures->addTexture2D(fileName, assetPath + fileName, VK_FORMAT_BC2_UNORM_BLOCK);
+				}
+				else {
+					materials[i].roughness = resources.textures->get(fileName);
+				}
             }
 
             if (aScene->mMaterials[i]->GetTextureCount(aiTextureType_SPECULAR) > 0)
             {
-                std::cout << "  Material has metaliness!" << std::endl;
+				aScene->mMaterials[i]->GetTexture(aiTextureType_SPECULAR, 0, &texturefile);
+				std::cout << "Metaliness: \"" << texturefile.C_Str() << "\"" << std::endl;
+				std::string fileName = std::string(texturefile.C_Str());
+				std::replace(fileName.begin(), fileName.end(), '\\', '/');
+				materials[i].hasMetaliness = true;
+
+				if (!resources.textures->present(fileName)) {
+					materials[i].metallic = resources.textures->addTexture2D(fileName, assetPath + fileName, VK_FORMAT_BC2_UNORM_BLOCK);
+				}
+				else {
+					materials[i].metallic = resources.textures->get(fileName);
+				}
             }
 
 			// Mask
@@ -673,7 +699,7 @@ private:
 			VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
 			VK_SHADER_STAGE_FRAGMENT_BIT,
 			1));
-		// Binding 2: Specular map
+		// Binding 2: Roughness map
 		setLayoutBindings.push_back(vkTools::initializers::descriptorSetLayoutBinding(
 			VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
 			VK_SHADER_STAGE_FRAGMENT_BIT,
@@ -683,6 +709,11 @@ private:
 			VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
 			VK_SHADER_STAGE_FRAGMENT_BIT,
 			3));
+		// Binding 4: Metallic map
+		setLayoutBindings.push_back(vkTools::initializers::descriptorSetLayoutBinding(
+			VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+			VK_SHADER_STAGE_FRAGMENT_BIT,
+			4));
 
 		VkDescriptorSetLayoutCreateInfo descriptorLayout =
 			vkTools::initializers::descriptorSetLayoutCreateInfo(
@@ -726,18 +757,24 @@ private:
 				VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
 				1,
 				&meshes[i].material->diffuse.descriptor));
-			// Binding 1: Specular
+			// Binding 1: Roughness
 			writeDescriptorSets.push_back(vkTools::initializers::writeDescriptorSet(
 				meshes[i].descriptorSet,
 				VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
 				2,
-				&meshes[i].material->specular.descriptor));
+				&meshes[i].material->roughness.descriptor));
 			// Binding 2: Normal
 			writeDescriptorSets.push_back(vkTools::initializers::writeDescriptorSet(
 				meshes[i].descriptorSet,
 				VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
 				3,
 				&meshes[i].material->bump.descriptor));
+			// Binding 3: Metallic
+			writeDescriptorSets.push_back(vkTools::initializers::writeDescriptorSet(
+				meshes[i].descriptorSet,
+				VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+				4,
+				&meshes[i].material->metallic.descriptor));
 
 			vkUpdateDescriptorSets(device, writeDescriptorSets.size(), writeDescriptorSets.data(), 0, NULL);
 		}
@@ -1396,7 +1433,7 @@ public:
 
 		VK_CHECK_RESULT(vkBeginCommandBuffer(offScreenCmdBuffer, &cmdBufInfo));
 
-		// First pass: Fill G-Buffer components (positions+depth, normals, albedo) using MRT
+		// First pass: Fill G-Buffer components (positions+depth, normals, albedo, roughness, metaliness) using MRT
 		// -------------------------------------------------------------------------------------------------------
 
 		vkCmdBeginRenderPass(offScreenCmdBuffer, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
@@ -1875,8 +1912,9 @@ public:
 		setLayoutBindings = {
 			vkTools::initializers::descriptorSetLayoutBinding(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT, 0),				// Vertex shader uniform buffer
 			vkTools::initializers::descriptorSetLayoutBinding(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 1),		// Diffuse
-			vkTools::initializers::descriptorSetLayoutBinding(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 2),		// Specular
+			vkTools::initializers::descriptorSetLayoutBinding(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 2),		// Roughness
 			vkTools::initializers::descriptorSetLayoutBinding(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 3),		// Bump
+			vkTools::initializers::descriptorSetLayoutBinding(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 4),		// Metaliness
 		};
 		setLayoutCreateInfo.pBindings = setLayoutBindings.data();
 		setLayoutCreateInfo.bindingCount = setLayoutBindings.size();
@@ -2279,7 +2317,7 @@ public:
 	void setupLights()
 	{	
 		// Dynamic light moving over the floor
-		setupLight(&uboFragmentLights.lights[0], { 0.f, -50.0f, 0.f }, glm::vec3(1.0f), 1600.0f);
+		setupLight(&uboFragmentLights.lights[0], { 0.f, -10.0f, 0.f }, glm::vec3(1.0f), 1600.0f);
 	}
 
 	// Update fragment shader light positions for moving light sources
@@ -2294,8 +2332,8 @@ public:
 		else
 		{
 			// Move across the floor
-			uboFragmentLights.lights[0].position.x = -sin(glm::radians(360.0f * timer)) * 120.0f;
-			uboFragmentLights.lights[0].position.z = cos(glm::radians(360.0f * timer * 8.0f)) * 10.0f;
+			//uboFragmentLights.lights[0].position.x = -sin(glm::radians(360.0f * timer)) * 120.0f;
+			//uboFragmentLights.lights[0].position.z = cos(glm::radians(360.0f * timer * 8.0f)) * 10.0f;
 		}
 
 		uboFragmentLights.viewPos = glm::vec4(camera.position, 0.0f) * glm::vec4(-1.0f);

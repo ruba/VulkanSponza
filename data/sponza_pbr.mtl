@@ -11,6 +11,7 @@ Ni 1.000000
 d 1.000000
 illum 2
 map_Bump SponzaPBR\\textures_pbr\\Lion_Normal_TGA_BC2_1.DDS
+map_Ka SponzaPBR\\textures_pbr\\Lion_Roughness_TGA_BC2_1.DDS
 map_Kd SponzaPBR\\textures_pbr\\Lion_Albedo_TGA_BC2_1.DDS
 
 newmtl m10column_c.004
@@ -35,8 +36,10 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 2
-map_Bump SponzaPBR\\textures_pbr\\Sponza_Details_normal_TGA_BC2_1.DDS
+map_Bump sponza\\sponza_details_ddn.dds
+map_Ka SponzaPBR\\textures_pbr\\Sponza_Details_roughness_TGA_BC2_1.DDS
 map_Kd SponzaPBR\\textures_pbr\\Sponza_Details_diffuse_TGA_BC2_1.DDS
+map_Ks SponzaPBR\\textures_pbr\\Sponza_Details_metallic_TGA_BC2_1.DDS
 
 newmtl m12fabric_a.004
 Ns 74.509804
@@ -48,7 +51,9 @@ Ni 1.000000
 d 1.000000
 illum 2
 map_Bump sponza\\sponza_fabric_ddn.dds
+map_Ka SponzaPBR\\textures_pbr\\Sponza_Fabric_roughness_TGA_BC2_1.DDS
 map_Kd SponzaPBR\\textures_pbr\\Sponza_Fabric_Red_diffuse_TGA_BC2_1.DDS
+map_Ks SponzaPBR\\textures_pbr\\Sponza_Fabric_metallic_TGA_BC2_1.DDS
 
 newmtl m13fabric_c.004
 Ns 74.509804
@@ -60,7 +65,9 @@ Ni 1.000000
 d 1.000000
 illum 2
 map_Bump sponza\\sponza_curtain_ddn.dds
+map_Ka SponzaPBR\\textures_pbr\\Sponza_Curtain_roughness_TGA_BC2_1.DDS
 map_Kd SponzaPBR\\textures_pbr\\Sponza_Curtain_Red_diffuse_TGA_BC2_1.DDS
+map_Ks SponzaPBR\\textures_pbr\\Sponza_Curtain_metallic_TGA_BC2_1.DDS
 
 newmtl m14fabric_d.004
 Ns 74.509804
@@ -74,6 +81,7 @@ illum 2
 map_Bump sponza\\sponza_fabric_ddn.dds
 map_Ka SponzaPBR\\textures_pbr\\Sponza_Fabric_roughness_TGA_BC2_1.DDS
 map_Kd SponzaPBR\\textures_pbr\\Sponza_Fabric_Blue_diffuse_TGA_BC2_1.DDS
+map_Ks SponzaPBR\\textures_pbr\\Sponza_Fabric_metallic_TGA_BC2_1.DDS
 
 newmtl m15fabric_e.004
 Ns 74.509804
@@ -85,7 +93,9 @@ Ni 1.000000
 d 1.000000
 illum 2
 map_Bump sponza\\sponza_fabric_ddn.dds
+map_Ka SponzaPBR\\textures_pbr\\Sponza_Fabric_roughness_TGA_BC2_1.DDS
 map_Kd SponzaPBR\\textures_pbr\\Sponza_Fabric_Green_diffuse_TGA_BC2_1.DDS
+map_Ks SponzaPBR\\textures_pbr\\Sponza_Fabric_metallic_TGA_BC2_1.DDS
 
 newmtl m16fabric_f.004
 Ns 74.509804
@@ -97,7 +107,9 @@ Ni 1.000000
 d 1.000000
 illum 2
 map_Bump sponza\\sponza_curtain_ddn.dds
+map_Ka SponzaPBR\\textures_pbr\\Sponza_Curtain_roughness_TGA_BC2_1.DDS
 map_Kd SponzaPBR\\textures_pbr\\Sponza_Curtain_Green_diffuse_TGA_BC2_1.DDS
+map_Ks SponzaPBR\\textures_pbr\\Sponza_Curtain_metallic_TGA_BC2_1.DDS
 
 newmtl m17fabric_g.004
 Ns 74.509804
@@ -109,7 +121,9 @@ Ni 1.000000
 d 1.000000
 illum 2
 map_Bump sponza\\sponza_curtain_ddn.dds
+map_Ka SponzaPBR\\textures_pbr\\Sponza_Curtain_roughness_TGA_BC2_1.DDS
 map_Kd SponzaPBR\\textures_pbr\\Sponza_Curtain_Blue_diffuse_TGA_BC2_1.DDS
+map_Ks SponzaPBR\\textures_pbr\\Sponza_Curtain_metallic_TGA_BC2_1.DDS
 
 newmtl m18flagpole.004
 Ns 74.509804
@@ -120,7 +134,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 2
-map_Bump SponzaPBR\\textures_pbr\\Sponza_FlagPole_normal_TGA_BC2_1.DDS
+map_Bump sponza\\sponza_flagpole_ddn.dds
 map_Ka SponzaPBR\\textures_pbr\\Sponza_FlagPole_roughness_TGA_BC2_1.DDS
 map_Kd SponzaPBR\\textures_pbr\\Sponza_FlagPole_diffuse_TGA_BC2_1.DDS
 
@@ -134,6 +148,7 @@ Ni 1.000000
 d 1.000000
 illum 2
 map_Bump sponza\\sponza_floor_a_ddn.dds
+map_Ka SponzaPBR\\textures_pbr\\Sponza_Floor_roughness_TGA_BC2_1.DDS
 map_Kd SponzaPBR\\textures_pbr\\Sponza_Floor_diffuse_TGA_BC2_1.DDS
 
 newmtl m1Material__298.004
@@ -174,6 +189,7 @@ Ni 1.000000
 d 1.000000
 illum 2
 map_Bump SponzaPBR\\textures_pbr\\Sponza_Roof_normal_TGA_BC2_1.DDS
+map_Ka SponzaPBR\\textures_pbr\\Sponza_Roof_roughness_TGA_BC2_1.DDS
 map_Kd SponzaPBR\\textures_pbr\\Sponza_Roof_diffuse_TGA_BC2_1.DDS
 
 newmtl m22vase.004
@@ -198,7 +214,8 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 2
-map_Bump SponzaPBR\\textures_pbr\\VaseHanging_normal_TGA_BC2_1.DDS
+map_Bump SponzaPBR\\textures_pbr\\VaseRound_normal_TGA_BC2_1.DDS
+map_Ka SponzaPBR\\textures_pbr\\VaseRound_roughness_TGA_BC2_1.DDS
 map_Kd SponzaPBR\\textures_pbr\\VaseHanging_diffuse_TGA_BC2_1.DDS
 
 newmtl m24vase_round.004
@@ -233,7 +250,6 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 2
-map_Bump SponzaPBR\\textures_pbr\\VasePlant_normal_TGA_BC2_1.DDS
 map_Ka SponzaPBR\\textures_pbr\\VasePlant_roughness_TGA_BC2_1.DDS
 map_Kd SponzaPBR\\textures_pbr\\VasePlant_diffuse_TGA_BC2_1.DDS
 map_Tr SponzaPBR\\textures_pbr\\VasePlant_diffuse_TGA_BC2_1.DDS
@@ -262,6 +278,7 @@ Ni 1.000000
 d 1.000000
 illum 2
 map_Bump -bm 0.661017 sponza\\sponza_floor_a_ddn.dds
+map_Ka SponzaPBR\\textures_pbr\\Sponza_Bricks_a_Roughness_TGA_BC2_1.DDS
 map_Kd SponzaPBR\\textures_pbr\\Sponza_Bricks_a_Albedo_TGA_BC2_1.DDS
 
 newmtl m6ceiling.004
@@ -273,7 +290,8 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 2
-map_Bump SponzaPBR\\textures_pbr\\Sponza_Ceiling_normal_TGA_BC2_1.DDS
+map_Bump sponza\\sponza_ceiling_a_ddn.dds
+map_Ka SponzaPBR\\textures_pbr\\Sponza_Ceiling_roughness_TGA_BC2_1.DDS
 map_Kd SponzaPBR\\textures_pbr\\Sponza_Ceiling_diffuse_TGA_BC2_1.DDS
 
 newmtl m7chain.004
@@ -285,9 +303,10 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 2
-map_Bump SponzaPBR\\textures_pbr\\VaseHanging_normal_TGA_BC2_1.DDS
-map_Ka SponzaPBR\\textures_pbr\\VaseHanging_roughness_TGA_BC2_1.DDS
-map_Kd SponzaPBR\\textures_pbr\\VaseHanging_diffuse_TGA_BC2_1.DDS
+map_Bump SponzaPBR\\textures_pbr\\ChainTexture_Normal_TGA_BC2_1.DDS
+map_Ka SponzaPBR\\textures_pbr\\ChainTexture_Roughness_TGA_BC2_1.DDS
+map_Kd sponza\\chain_texture.dds
+map_Ks SponzaPBR\\textures_pbr\\ChainTexture_Metallic_TGA_BC2_1.DDS
 
 newmtl m8column_a.004
 Ns 74.509804

@@ -4,8 +4,9 @@
 #extension GL_ARB_shading_language_420pack : enable
 
 layout (binding = 1) uniform sampler2D samplerColor;
-layout (binding = 2) uniform sampler2D samplerSpecular;
+layout (binding = 2) uniform sampler2D samplerRoughness;
 layout (binding = 3) uniform sampler2D samplerNormal;
+layout (binding = 4) uniform sampler2D samplerMetaliness;
 
 layout (location = 0) in vec3 inNormal;
 layout (location = 1) in vec2 inUV;
@@ -54,9 +55,11 @@ void main()
 	}
 
 	// Pack
-	float specular = texture(samplerSpecular, inUV).r;
+	float roughness = texture(samplerRoughness, inUV).r;
+	float metaliness = texture(samplerMetaliness, inUV).r;
 
 	outAlbedo.r = packHalf2x16(color.rg);
 	outAlbedo.g = packHalf2x16(color.ba);
-	outAlbedo.b = packHalf2x16(vec2(specular, 0.0));
+	outAlbedo.b = packHalf2x16(vec2(roughness, 0.0));
+	outAlbedo.a = packHalf2x16(vec2(metaliness, 0.0));
 }
