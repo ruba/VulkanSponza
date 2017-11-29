@@ -31,11 +31,6 @@ void main()
 
 	// Vertex position in world space
 	outWorldPos = inPos.xyz;
-
-	outWorldPos = vec3(ubo.view * ubo.model * inPos);
-
-	// GL to Vulkan coord space
-	//outWorldPos.y = -outWorldPos.y;
 	
 	// Normal in world space
 	mat3 mNormal = transpose(inverse(mat3(ubo.model)));
